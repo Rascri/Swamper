@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="Swamper" company="" webLink="http://" view-date="2026-06-01" view-index="0" gantt-divider-location="741" resource-divider-location="300" version="3.3.3322" locale="es_ES">
+    <description/>
+    <view zooming-state="default:7" id="gantt-chart">
+        <field id="tpd3" name="Nombre" width="196" order="0"/>
+        <field id="tpd4" name="Fecha de inicio" width="149" order="1"/>
+        <field id="tpd5" name="Fecha de fin" width="158" order="2"/>
+        <field id="tpd15" name="Notas" width="20" order="3"/>
+        <field id="tpd6" name="Duración" width="237" order="3"/>
+        <option id="filter.completedTasks" value="false"/>
+        <option id="filter.dueTodayTasks" value="false"/>
+        <option id="filter.overdueTasks" value="false"/>
+        <option id="filter.inProgressTodayTasks" value="false"/>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Nombre" width="210" order="0"/>
+        <field id="1" name="Función" width="86" order="1"/>
+    </view>
+    <!-- -->
+    <calendars base-id="ar">
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="1" thu="1" fri="1" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+        <date year="" month="1" date="1" type="HOLIDAY"><![CDATA[New Year's Day]]></date>
+        <date year="" month="3" date="24" type="HOLIDAY"><![CDATA[Truth and Justice Memorial Day]]></date>
+        <date year="" month="4" date="2" type="HOLIDAY"><![CDATA[Malvinas Day]]></date>
+        <date year="" month="5" date="1" type="HOLIDAY"><![CDATA[Labour Day]]></date>
+        <date year="" month="5" date="25" type="HOLIDAY"><![CDATA[May Day Revolution]]></date>
+        <date year="" month="6" date="20" type="HOLIDAY"><![CDATA[National Flag Day]]></date>
+        <date year="" month="7" date="9" type="HOLIDAY"><![CDATA[Independence Day]]></date>
+        <date year="" month="12" date="8" type="HOLIDAY"><![CDATA[Immaculate Conception Day]]></date>
+        <date year="" month="12" date="25" type="HOLIDAY"><![CDATA[Christmas Day]]></date>
+        <date year="2026" month="2" date="16" type="HOLIDAY"><![CDATA[Carnival Monday]]></date>
+        <date year="2026" month="2" date="17" type="HOLIDAY"><![CDATA[Carnival Tuesday]]></date>
+        <date year="2026" month="4" date="3" type="HOLIDAY"><![CDATA[Good Friday]]></date>
+        <date year="2026" month="6" date="15" type="HOLIDAY"><![CDATA[Martin Miguel de Guemes Day]]></date>
+        <date year="2026" month="8" date="17" type="HOLIDAY"><![CDATA[San Martin's Day]]></date>
+        <date year="2026" month="10" date="12" type="HOLIDAY"><![CDATA[Day of respect for cultural diversity]]></date>
+        <date year="2026" month="11" date="20" type="HOLIDAY"><![CDATA[National Sovereignty Day]]></date>
+        <date year="2025" month="3" date="3" type="HOLIDAY"><![CDATA[Carnival Monday]]></date>
+        <date year="2025" month="3" date="4" type="HOLIDAY"><![CDATA[Carnival Tuesday]]></date>
+        <date year="2025" month="4" date="18" type="HOLIDAY"><![CDATA[Good Friday]]></date>
+        <date year="2025" month="6" date="16" type="HOLIDAY"><![CDATA[Martin Miguel de Guemes Day]]></date>
+        <date year="2025" month="8" date="18" type="HOLIDAY"><![CDATA[San Martin's Day]]></date>
+        <date year="2025" month="10" date="13" type="HOLIDAY"><![CDATA[Day of respect for cultural diversity]]></date>
+        <date year="2025" month="11" date="17" type="HOLIDAY"><![CDATA[National Sovereignty Day]]></date>
+        <date year="2020" month="2" date="24" type="HOLIDAY"><![CDATA[Carnival Monday]]></date>
+        <date year="2020" month="2" date="25" type="HOLIDAY"><![CDATA[Carnival Tuesday]]></date>
+        <date year="2020" month="3" date="23" type="HOLIDAY"><![CDATA[Truth and Justice Memorial Bridge Holiday]]></date>
+        <date year="2020" month="4" date="10" type="HOLIDAY"><![CDATA[Good Friday]]></date>
+        <date year="2020" month="6" date="15" type="HOLIDAY"><![CDATA[Martin Miguel de Guemes Day]]></date>
+        <date year="2020" month="6" date="20" type="HOLIDAY"><![CDATA[National Flag Day]]></date>
+        <date year="2020" month="7" date="10" type="HOLIDAY"><![CDATA[Independence Day Bridge Holiday]]></date>
+        <date year="2020" month="8" date="17" type="HOLIDAY"><![CDATA[San Martin's Day]]></date>
+        <date year="2020" month="10" date="12" type="HOLIDAY"><![CDATA[Day of respect for cultural diversity]]></date>
+        <date year="2020" month="11" date="23" type="HOLIDAY"><![CDATA[National Sovereignty Day]]></date>
+        <date year="2020" month="12" date="7" type="HOLIDAY"><![CDATA[Immaculate Conception Bridge Holiday]]></date>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="0" uid="26fed34fb7304ee18e8c73166ea70701" name="Swamper" meeting="false" start="2026-03-30" duration="51" complete="73" expand="true">
+            <task id="1" uid="2388dff0277a40e681c8f0377f4e916f" name="Investigación" meeting="false" start="2026-03-30" duration="2" complete="100" priority="2" expand="false">
+                <depend id="7" type="2" difference="0" hardness="Strong"/>
+                <task id="3" uid="2dffb978e73b4864b6664a9aff0349fa" name="Investigación de prenda" meeting="false" start="2026-03-30" duration="2" complete="100" expand="true"/>
+                <task id="2" uid="f8a5ab1af89f47308d577ff7a637ed3b" name="Investigacion de sensores" meeting="false" start="2026-03-30" duration="2" complete="100" expand="true"/>
+                <task id="4" uid="0410af57a55d48f9981c056754794838" name="Investigación de anatomia" meeting="false" start="2026-03-30" duration="2" complete="100" expand="true"/>
+            </task>
+            <task id="7" uid="6f5268f7422d42019c8d2d80d1c80d55" name="Diseño" meeting="false" start="2026-04-06" duration="14" complete="100" expand="true">
+                <depend id="10" type="2" difference="0" hardness="Strong"/>
+                <task id="8" uid="4e619ca22fee480f835ff56fe28fb86b" name="Diseño de prenda" meeting="false" start="2026-04-06" duration="3" complete="100" expand="true"/>
+                <task id="6" uid="bc1b9dd118f1435a94ec382a0f5a813b" name="Selección de componentes" meeting="false" start="2026-04-06" duration="2" complete="100" expand="true">
+                    <depend id="33" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="33" uid="037feb4040e74e0587e6d441779efdf2" name="Diseño de Esquematico" meeting="false" start="2026-04-13" duration="2" complete="100" expand="true">
+                    <depend id="5" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="5" uid="e73d1c3fc4b9413c924348701e8f3c85" name="Diseño de PCB" meeting="false" start="2026-04-20" duration="10" complete="100" expand="true"/>
+            </task>
+            <task id="10" uid="ddaa3a4e8135433bac5dd147c44bb744" name="Hardware" meeting="false" start="2026-05-26" duration="5" complete="100" expand="true">
+                <depend id="26" type="2" difference="0" hardness="Strong"/>
+                <task id="34" uid="634d925efb8c465e851a71904bc1c11e" name="Compra de componentes" meeting="false" start="2026-05-26" duration="1" complete="100" priority="2" expand="true">
+                    <depend id="17" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="11" uid="08dc58ad8633483c96e61f2971651671" name="Fabricacion de placa" meeting="false" start="2026-05-26" duration="2" complete="100" expand="true">
+                    <depend id="17" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="17" uid="45a914e74cc2406f8cfd5feac3c3c57a" name="Montaje de placa" meeting="false" start="2026-06-02" duration="3" complete="100" expand="true"/>
+            </task>
+            <task id="21" uid="be67144205aa4a9daea57d9c41c2d6ed" name="Software" meeting="false" start="2026-05-19" duration="19" complete="93" expand="true">
+                <depend id="26" type="2" difference="0" hardness="Strong"/>
+                <task id="22" uid="fb22f7e01b724439983ccba154009845" name="Programacion" meeting="false" start="2026-06-09" duration="14" complete="90" expand="true"/>
+                <task id="24" uid="e4c014d2b2f141fb9fadea26b62a13a2" name="Investigacion de algoritmos" meeting="false" start="2026-05-19" duration="3" complete="100" expand="true">
+                    <depend id="22" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="23" uid="70115a5ba4c140e2b5034b3537499acf" name="Lectura de sensores" meeting="false" start="2026-05-19" duration="5" complete="100" expand="true">
+                    <depend id="22" type="2" difference="0" hardness="Strong"/>
+                </task>
+            </task>
+            <task id="26" uid="f728343a7cfd4f2d927d66f0011d9e45" name="Integración" meeting="false" start="2026-08-03" duration="7" complete="61" expand="true">
+                <depend id="29" type="2" difference="0" hardness="Strong"/>
+                <task id="27" uid="1d24cfef052b4addbb892f3afe048dd7" name="Unir Hardware + Software" meeting="false" start="2026-08-03" duration="2" complete="90" expand="true">
+                    <depend id="28" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="28" uid="c06d2d30f44b47b2a6b89baece591d80" name="Montar en chaleco" meeting="false" start="2026-08-10" duration="5" complete="50" expand="true"/>
+            </task>
+            <task id="29" uid="7f1a7dba03df4175aa380f100d3a886d" name="Pruebas" meeting="false" start="2026-08-31" duration="10" complete="0" expand="true">
+                <task id="30" uid="a801a2c774514ecb829e4d97e7ca8640" name="Testeos" meeting="false" start="2026-08-31" duration="5" complete="0" expand="true"/>
+                <task id="31" uid="a268f4ed15424e5ca573eecd0cd1575f" name="Corrección de errores" meeting="false" start="2026-08-31" duration="5" complete="0" expand="true">
+                    <depend id="32" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="32" uid="35edf7a3d3514b658444c0f86a994353" name="Optimización" meeting="false" start="2026-09-15" duration="5" complete="0" expand="true"/>
+            </task>
+        </task>
+    </tasks>
+    <resources>
+        <resource id="0" name="Rafael Fernandez" function="Default:0" contacts="fernandezrafael2905@gmail.com" phone="11 2798-3887"/>
+        <resource id="1" name="Santino Fernandez" function="Default:0" contacts="fernandezsantino626@gmail.com" phone="11 6680-7410"/>
+        <resource id="2" name="Ramiro Ayala" function="Default:0" contacts="ramiroayalatecnicoelectronico@gmail.com" phone="11 3675-5103"/>
+        <resource id="3" name="Nazareno Colussi" function="Default:1" contacts="nazarenocolussi@gmail.com" phone="11 2652-0720"/>
+        <resource id="4" name="Tiziano Gomez" function="Default:0" contacts="tiziano.jesus.gomez.2008@gmail.com" phone="11 2254-0775"/>
+    </resources>
+    <allocations>
+        <allocation task-id="0" resource-id="0" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="0" resource-id="1" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="0" resource-id="2" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="0" resource-id="3" function="Default:1" responsible="false" load="100.0"/>
+        <allocation task-id="0" resource-id="4" function="Default:0" responsible="false" load="100.0"/>
+    </allocations>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>

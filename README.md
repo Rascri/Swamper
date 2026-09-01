@@ -1,67 +1,39 @@
-# Swamper - Swaby 
+# Swaby
 
-## Prenda Inteligente Wearable
+## Descripción
 
-**Swamper** es una prenda inteligente desarrollada por **Swaby**, cuyo objetivo es integrar tecnología electrónica y sistemas embebidos dentro de una prenda de uso cotidiano, permitiendo obtener información del usuario y mejorar su desempeño y seguridad.
+**Swaby** es un proyecto investigativo orientado al desarrollo de un sistema portátil de monitoreo biomédico. El prototipo permite adquirir y visualizar en tiempo real información relacionada con la actividad cardíaca y el movimiento del usuario.
 
-El proyecto nace con un enfoque orientado a **deportistas y bomberos**, dos grupos donde el monitoreo de variables físicas y las condiciones del entorno pueden ser fundamentales.
+El sistema utiliza un **ESP32** como unidad principal de procesamiento, conectado a un sensor **AD8232** para la adquisición del electrocardiograma (ECG), un **DS18B20** para la medición de temperatura y un **MPU-6050** para el análisis de movimiento y postura.
 
-Actualmente el proyecto cuenta con un **prototipo ensamblado y funcional**, integrando hardware, sensores y una plataforma de visualización de datos.
+Los datos obtenidos son procesados por el ESP32 y enviados mediante **Bluetooth** a una PC para su visualización y registro.
 
-🌐 Página demo de monitoreo:
-https://swaby-chaleco-e843g11os-swaby.vercel.app/
+## Enfoque investigativo
 
----
+El desarrollo de Swaby se planteó como un proyecto investigativo, además de la construcción de un prototipo funcional. Durante las pruebas se analizaron las condiciones necesarias para obtener una señal de ECG estable y las limitaciones del sistema.
 
-# 🎯 Objetivo
+Se comprobó que el ECG funciona correctamente cuando el usuario se encuentra en reposo, pero presenta importantes perturbaciones durante el movimiento. El principal problema identificado fue el ruido generado por la actividad y el movimiento muscular, que se superpone a la señal cardíaca y genera artefactos que dificultan su correcta interpretación.
 
-Desarrollar una solución wearable capaz de asistir al usuario mediante la captura y visualización de datos obtenidos desde sensores incorporados en la prenda.
+A pesar del filtrado incorporado en el AD8232, filtrado por software y los recursos disponibles para el proyecto no fue posible eliminar estas interferencias de manera suficiente como para obtener una señal de ECG confiable durante el movimiento. Por este motivo, el monitoreo cardíaco se consideró funcional bajo condiciones de reposo, pero limitado durante la actividad física.
 
-Swamper busca brindar:
+También se detectaron interferencias externas durante las primeras pruebas, relacionadas con la alimentación y la calidad de los electrodos. Estas fueron reducidas mediante el aislamiento de la fuente de alimentación utilizada en el laboratorio y el reemplazo de los electrodos por otros de mayor calidad.
 
-- Monitoreo en tiempo real
-- Mayor seguridad durante actividades exigentes
-- Análisis de datos del usuario
-- Integración entre tecnología y vestimenta
+## Software
 
----
+El **ESP32** se encarga de adquirir los datos de los sensores y transmitirlos mediante Bluetooth.
 
-# 👥 Público objetivo
+Para la visualización y registro de los datos se desarrolló una aplicación en **Processing**, encargada de recibir la información enviada por el ESP32 y representarla de forma gráfica en tiempo real.
 
-## 🏃 Deportistas
+La aplicación permite visualizar principalmente:
 
-La prenda está pensada para acompañar actividades deportivas mediante el seguimiento de parámetros que permitan analizar el rendimiento y el estado del usuario.
+* Señal de ECG y BPM en tiempo real.
+* Datos de temperatura.
+* Información proveniente del MPU-6050.
 
-Posibles aplicaciones:
+La comunicación entre el prototipo y la aplicación se realiza de forma inalámbrica mediante **Bluetooth**, permitiendo separar físicamente el sistema de adquisición de la interfaz de visualización.
 
-- Seguimiento durante entrenamientos
-- Control de variables físicas
-- Análisis posterior de actividad
+## Estado del proyecto
 
----
+El prototipo logró cumplir con el objetivo planteado, permitiendo la adquisición y visualización en tiempo real de las variables estudiadas.
 
-## 🚒 Bomberos
-
-En situaciones de emergencia, Swamper busca aportar una herramienta tecnológica que permita mejorar la seguridad del personal mediante el monitoreo durante tareas de alta exigencia.
-
-Posibles aplicaciones:
-
-- Supervisión del estado del usuario
-- Detección de condiciones críticas
-- Apoyo durante operaciones de riesgo
-
----
-
-# ⚙️ Funcionamiento general
-
-El sistema está compuesto por:
-
-- Sensores integrados en la prenda
-- Sistema electrónico de adquisición de datos
-- Microcontrolador para procesamiento
-- Comunicación con plataforma digital
-- Interfaz web para visualización
-
-Los datos obtenidos son procesados y enviados a una aplicación donde pueden ser observados por el usuario.
-
----
+El repositorio contiene el código, componentes, diagramas y documentación correspondiente al desarrollo de **Swaby**.

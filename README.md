@@ -37,3 +37,9 @@ La comunicación entre el prototipo y la aplicación se realiza de forma inalám
 El prototipo logró cumplir con el objetivo planteado, permitiendo la adquisición y visualización en tiempo real de las variables estudiadas.
 
 El repositorio contiene el código, componentes, diagramas y documentación correspondiente al desarrollo de **Swaby**.
+
+https://github.com/Rascri/Monitor-ECG---SWABY.git
+https://github.com/Rascri/Monitor-ECG---SWABY.git
+https://github.com/Rascri/Monitor-ECG---SWABY.git
+https://github.com/Rascri/Monitor-ECG---SWABY.git
+https://github.com/Rascri/Monitor-ECG---SWABY.git

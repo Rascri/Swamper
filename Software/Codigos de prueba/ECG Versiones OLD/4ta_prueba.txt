@@ -1,0 +1,357 @@
+/*******************************************************************************
+  BPM CALCULADOS EXPONENCIALMENTE
+  CADENA: HP 0.5Hz → Notch 50Hz → LP 40Hz → Savitzky-Golay
+  UMBRAL 3500  |  REFRACTORY PERIOD 400 ms
+*******************************************************************************/
+
+import processing.serial.*;
+
+Serial myPort;
+
+// ─── Gráfica ─────────────────────────────────────────────────────────────────
+int   xPos       = 1;
+float height_old = 0;
+float height_new = 0;
+float inByte     = 0;
+float filtered   = 0;
+
+// ─── BPM ─────────────────────────────────────────────────────────────────────
+int     BPM              = 0;
+int     beat_old         = 0;
+int     beatCounter      = 0;
+int     refractoryPeriod = 400;
+int     lastBeatTime     = 0;
+float   threshold        = 3500.0;
+boolean belowThreshold   = true;
+boolean beatDetected     = false;
+
+// ─── Constantes ADC / muestreo ───────────────────────────────────────────────
+final float FS      = 250.0;    // frecuencia de muestreo [Hz]
+final float ADC_MID = 2048.0;   // punto medio del ADC de 12 bits
+final float ADC_MAX = 4095.0;
+
+// ─── FILTRO 1: Pasa-altos IIR 1er orden  (fc = 0.5 Hz) ──────────────────────
+//
+//  H(z) = α · (1 − z⁻¹) / (1 − α·z⁻¹)
+//
+//  Ecuación en diferencias:
+//    y_hp[n] = α · (y_hp[n-1] + x[n] − x[n-1])
+//
+//  α = 1 / (1 + 2π·fc/fs)  ← aproximación Euler
+//    = 1 / (1 + 2π·0.5/250) ≈ 0.9876
+//
+//  Propósito: eliminar el wandering de línea de base (respiración, movimiento).
+//  La salida oscila alrededor de 0 (es la componente AC de la señal).
+//  Se le suma ADC_MID después para re-centrar la señal en el rango del ADC.
+//
+//  CORRECCIÓN respecto al original: hp_prev_y debe inicializarse en 0, no en
+//  ADC_MID. El filtro HP filtra el DC; su estado en reposo es cero.
+//  Con hp_prev_y = ADC_MID la primera muestra producía un spike ≈ 4074 ADC
+//  (casi ADC_MAX), lo que podía disparar falsas detecciones de latido.
+//
+float alpha_HP;
+float hp_prev_x;
+float hp_prev_y;   // estado interno del HP; debe ser 0 en reposo (ver corrección)
+
+// ─── FILTRO 2: Notch 50 Hz  (Biquad IIR, forma directa II transpuesta) ───────
+//
+//  H(z) = (b0 + b1·z⁻¹ + b2·z⁻²) / (1 + a1·z⁻¹ + a2·z⁻²)
+//
+//  Diseño por colocación de ceros:
+//    Ceros en z = e^(±jω₀)  → atenuación exactamente cero a 50 Hz
+//    Polos en  z = r·e^(±jω₀) con r < 1  → estabilidad garantizada
+//
+//  Parámetros:
+//    ω₀ = 2π · 50/250 = 0.4π rad/muestra  (72°)
+//    Q  = 30  →  BW = f₀/Q ≈ 1.67 Hz  (muesca angosta)
+//    r  = 1 − π·BW/fs ≈ 0.979
+//
+//  Coeficientes resultantes (calculados en setup):
+//    b0 =  1,   b1 ≈ −0.618,  b2 = 1
+//    a1 ≈ −0.605,  a2 ≈ 0.958
+//
+//  Propósito: eliminar la interferencia de la red eléctrica de 50 Hz
+//  (Argentina, Europa). La muesca angosta (Q=30) mínimamente afecta
+//  frecuencias vecinas y no distorsiona el complejo QRS.
+//
+float notch_b0, notch_b1, notch_b2;   // coeficientes numerador
+float notch_a1, notch_a2;             // coeficientes denominador (a0=1, normalizado)
+float notch_x1, notch_x2;            // línea de retardo: entradas anteriores
+float notch_y1, notch_y2;            // línea de retardo: salidas anteriores
+
+// ─── FILTRO 3: Pasa-bajos IIR 1er orden  (fc = 40 Hz) ───────────────────────
+//
+//  H(z) = α / (1 − (1−α)·z⁻¹)
+//
+//  Ecuación en diferencias:
+//    y_lp[n] = α·x[n] + (1−α)·y_lp[n-1]
+//
+//  α = (2π·fc/fs) / (1 + 2π·fc/fs) ≈ 0.501
+//
+//  Nota de frecuencia real: la aproximación de Euler produce warping;
+//  el −3 dB real cae ≈ 52 Hz en lugar de 40 Hz. Para la detección de
+//  picos R con umbral fijo, la diferencia es aceptable. Se mantiene sin
+//  cambios para no alterar el comportamiento del programa original.
+//
+//  Propósito: atenuar ruido de alta frecuencia (artefactos, EMG) antes
+//  del suavizado Savitzky-Golay.
+//
+float alpha_LP;
+float lp_prev_y;
+
+// ─── FILTRO 4: Savitzky-Golay  5 puntos, polinomio grado 2 (FIR) ────────────
+//
+//  Convuelve la señal con h = [−3, 12, 17, 12, −3] / 35
+//
+//  Equivalencia matemática: ajuste de un polinomio de grado 2 por mínimos
+//  cuadrados en cada ventana deslizante de 5 muestras; se toma el valor
+//  central estimado.
+//
+//  Ventana: 5 muestras = 20 ms @ 250 Hz
+//  Duración típica del QRS: 80–120 ms (20–30 muestras)
+//   → La ventana ocupa < 25 % del QRS: no deforma el pico R.
+//
+//  Retardo de grupo: (N−1)/2 = 2 muestras = 8 ms  (constante y simétrico)
+//   → Los intervalos RR se miden con el mismo retardo en cada latido,
+//     por lo que el cálculo de BPM NO se ve afectado.
+//
+//  Implementación: buffer circular causal; sg_idx apunta siempre a la
+//  posición de la muestra más antigua.
+//
+final int     SG_LEN  = 5;
+final float[] SG_COEF = { -3.0/35.0, 12.0/35.0, 17.0/35.0, 12.0/35.0, -3.0/35.0 };
+float[]       sg_buf  = new float[SG_LEN];
+int           sg_idx  = 0;
+
+PFont font;
+
+// ─────────────────────────────────────────────────────────────────────────────
+void setup() {
+  size(1000, 400);
+  printArray(Serial.list());
+  myPort = new Serial(this, "COM3", 115200);   // ← ajustar puerto
+  myPort.bufferUntil('\n');
+  background(0xFF);
+  font = createFont("Arial", 12, true);
+  textFont(font);
+
+  // ── Pasa-altos 0.5 Hz ──────────────────────────────────────────────────────
+  float FC_HP = 0.5;
+  alpha_HP  = 1.0 / (1.0 + TWO_PI * FC_HP / FS);
+  hp_prev_x = ADC_MID;
+  hp_prev_y = 0.0;    // CORRECCIÓN: estado del HP en reposo es 0 (no ADC_MID)
+
+  // ── Notch 50 Hz (biquad IIR) ───────────────────────────────────────────────
+  float FC_NOTCH = 50.0;
+  float Q_NOTCH  = 30.0;
+  float w0       = TWO_PI * FC_NOTCH / FS;      // 0.4π rad/muestra ≈ 1.2566
+  float BW_notch = FC_NOTCH / Q_NOTCH;          // ≈ 1.667 Hz
+  float r        = 1.0 - PI * BW_notch / FS;   // ≈ 0.979
+
+  notch_b0 =  1.0;
+  notch_b1 = -2.0 * cos(w0);                    // ≈ -0.618  (2·cos(72°))
+  notch_b2 =  1.0;
+  notch_a1 = -2.0 * r * cos(w0);               // ≈ -0.605
+  notch_a2 =  r * r;                            // ≈ 0.958
+
+  // Estado inicial: señal en reposo centrada en ADC_MID
+  notch_x1 = notch_x2 = ADC_MID;
+  notch_y1 = notch_y2 = ADC_MID;
+
+  // ── Pasa-bajos 40 Hz ───────────────────────────────────────────────────────
+  float FC_LP = 40.0;
+  alpha_LP  = (TWO_PI * FC_LP / FS) / (1.0 + TWO_PI * FC_LP / FS);
+  lp_prev_y = ADC_MID;
+
+  // ── Savitzky-Golay: inicializar buffer en ADC_MID ──────────────────────────
+  for (int i = 0; i < SG_LEN; i++) sg_buf[i] = ADC_MID;
+  sg_idx = 0;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+void draw() {
+  float display = map(filtered, 0, ADC_MAX, 0, height);
+  height_new = height - display;
+  line(xPos - 1, height_old, xPos, height_new);
+  height_old = height_new;
+
+  if (beatDetected) {
+    stroke(0, 200, 0);
+    line(xPos, 0, xPos, height);
+    beatDetected = false;
+    stroke(255, 0, 0);
+  }
+
+  if (xPos >= width) {
+    xPos = 0;
+    background(0xFF);
+  } else {
+    xPos++;
+  }
+
+  if (millis() % 128 == 0) {
+    fill(0xFF);
+    rect(0, 0, 260, 20);
+    fill(0x00);
+    textSize(13);
+    text("BPM: " + BPM +
+     "  Beats: " + beatCounter +
+     "  TH: " + int(threshold),
+     15, 14);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+void serialEvent(Serial myPort) {
+  String inString = myPort.readStringUntil('\n');
+  if (inString == null) return;
+  inString = trim(inString);
+
+  if (inString.equals("!")) {
+    stroke(0, 0, 0xFF);
+    inByte   = ADC_MID;
+    filtered = ADC_MID;
+    resetFilters();
+  } else {
+    stroke(0xFF, 0, 0);
+    inByte   = float(inString);
+    filtered = applyFilters(inByte);
+
+    if (filtered > threshold &&
+        belowThreshold &&
+        millis() - lastBeatTime > refractoryPeriod) {
+
+      beatDetected = true;
+      beatCounter++;
+
+      println("BEAT #" + beatCounter +
+              " ADC=" + int(filtered));
+
+      lastBeatTime = millis();
+
+      calculateBPM();
+
+      belowThreshold = false;
+    }
+    else if (filtered < threshold) {
+      belowThreshold = true;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  CADENA DE FILTRADO:
+//  RAW ADC → HP 0.5 Hz → Notch 50 Hz → LP 40 Hz → Savitzky-Golay → salida
+// ─────────────────────────────────────────────────────────────────────────────
+float applyFilters(float x) {
+  float y = x;
+
+  // ── ETAPA 1: Pasa-altos 0.5 Hz ─────────────────────────────────────────────
+  //  Elimina el wandering de línea de base (deriva lenta por respiración /
+  //  movimiento de electrodos). Se aplica PRIMERO para no saturar las etapas
+  //  siguientes con offset DC ni con variaciones lentas de gran amplitud.
+  //  La salida hp_out oscila alrededor de 0; se le suma ADC_MID para
+  //  mantener la señal en el rango positivo del ADC y del display.
+  float hp_out = alpha_HP * (hp_prev_y + y - hp_prev_x);
+  hp_prev_x = y;
+  hp_prev_y = hp_out;
+  y = hp_out + ADC_MID;
+
+  // ── ETAPA 2: Notch 50 Hz ───────────────────────────────────────────────────
+  //  Elimina la interferencia de la red eléctrica de 50 Hz con ceros exactos
+  //  en esa frecuencia. Se aplica ANTES del LP porque el roll-off de 1er orden
+  //  del pasa-bajos no es suficientemente selectivo para suprimir 50 Hz.
+  //  Forma directa II:
+  //    y[n] = b0·x[n] + b1·x[n-1] + b2·x[n-2]
+  //                    − a1·y[n-1] − a2·y[n-2]
+  float notch_out = notch_b0 * y
+                  + notch_b1 * notch_x1
+                  + notch_b2 * notch_x2
+                  - notch_a1 * notch_y1
+                  - notch_a2 * notch_y2;
+  notch_x2 = notch_x1;   notch_x1 = y;
+  notch_y2 = notch_y1;   notch_y1 = notch_out;
+  y = notch_out;
+
+  // ── ETAPA 3: Pasa-bajos 40 Hz ──────────────────────────────────────────────
+  //  Atenúa ruido de alta frecuencia (EMG, artefactos de movimiento, digitales).
+  //  Se aplica ANTES del SG para reducir la amplitud del ruido que el SG
+  //  deberá suavizar, mejorando la eficiencia de la cadena.
+  float lp_out = alpha_LP * y + (1.0 - alpha_LP) * lp_prev_y;
+  lp_prev_y = lp_out;
+  y = lp_out;
+
+  // ── ETAPA 4: Savitzky-Golay 5 puntos ───────────────────────────────────────
+  //  Suavizado polinómico de ruido residual de media frecuencia (EMG en banda
+  //  10–40 Hz que el LP de 1er orden deja pasar por su suave roll-off).
+  //  Se aplica AL FINAL para no distorsionar la señal antes de las etapas
+  //  anteriores. El retardo de 2 muestras es sistemático e igual en todos
+  //  los picos, por lo que no afecta el cálculo de intervalos RR ni de BPM.
+  //
+  //  Buffer circular: sg_idx apunta a la posición más antigua.
+  //  Tras escribir la muestra nueva y avanzar sg_idx, el buffer contiene
+  //  [más antigua, ..., más nueva] a partir de sg_idx.
+  sg_buf[sg_idx] = y;
+  sg_idx = (sg_idx + 1) % SG_LEN;
+
+  float sg_out = 0.0;
+  for (int i = 0; i < SG_LEN; i++) {
+    sg_out += SG_COEF[i] * sg_buf[(sg_idx + i) % SG_LEN];
+  }
+  y = sg_out;
+
+  return y;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+void resetFilters() {
+  // Pasa-altos: el estado AC (hp_prev_y) debe ser 0 en reposo
+  hp_prev_x = ADC_MID;
+  hp_prev_y = 0.0;             // CORRECCIÓN
+
+  // Notch: en reposo la señal está centrada en ADC_MID
+  notch_x1 = notch_x2 = ADC_MID;
+  notch_y1 = notch_y2 = ADC_MID;
+
+  // Pasa-bajos
+  lp_prev_y = ADC_MID;
+
+  // Savitzky-Golay
+  for (int i = 0; i < SG_LEN; i++) sg_buf[i] = ADC_MID;
+  sg_idx = 0;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+void keyPressed() {
+  switch (key) {
+    case 'u':
+      threshold += 50;
+      println("Threshold = " + threshold);
+      break;
+    case 'y':
+      threshold -= 50;
+      println("Threshold = " + threshold);
+      break;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+void calculateBPM() {
+  int beat_new = millis();
+  int diff     = beat_new - beat_old;
+
+  // Validar rango fisiológico: 30–200 BPM → 300 ms–2000 ms entre latidos
+  if (diff < 300 || diff > 2000) {
+    beat_old = beat_new;
+    return;
+  }
+
+  float currentBPM = 60000.0 / diff;
+
+  if (BPM == 0)
+    BPM = int(currentBPM);
+  else
+    BPM = int(0.8 * BPM + 0.2 * currentBPM);
+
+  beat_old = beat_new;
+}

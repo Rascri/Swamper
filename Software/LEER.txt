@@ -1,0 +1,5 @@
+Codigo de referencia PROCESSING:
+https://learn.sparkfun.com/tutorials/ad8232-heart-rate-monitor-hookup-guide/all
+
+Video extra, codigo que no llegamos a probar python:
+https://www.youtube.com/watch?v=NcodDkrldqQ

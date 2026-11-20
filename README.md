@@ -42,4 +42,3 @@ https://github.com/Rascri/Monitor-ECG---SWABY.git
 https://github.com/Rascri/Monitor-ECG---SWABY.git
 https://github.com/Rascri/Monitor-ECG---SWABY.git
 https://github.com/Rascri/Monitor-ECG---SWABY.git
-https://github.com/Rascri/Monitor-ECG---SWABY.git
